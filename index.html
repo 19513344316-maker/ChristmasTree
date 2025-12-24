@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merry Christmas 2025</title>
+    
+    <!-- 1. 样式与字体 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <!-- 2. 核心依赖: React & Babel (用于在浏览器运行 JSX) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #0c0211; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-love { font-family: 'Dancing Script', cursive; }
+        
+        @keyframes snow {
+            0% { transform: translateY(0vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(50px); }
+        }
+        .animate-snow { animation: snow linear infinite; }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .animate-heart { animation: heartbeat 0.8s ease-in-out infinite; }
+        
+        /* 增强爱心的发光感 */
+        .heart-glow {
+            filter: drop-shadow(0 0 12px rgba(255, 20, 147, 1)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- 3D 粒子圣诞树组件 ---
+        const ChristmasTree = () => {
+            const canvasRef = useRef(null);
+            const COLORS = ['#ff1493', '#ff69b4', '#da70d6', '#ba55d3', '#ffd700', '#ffffff'];
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+                
+                const dpr = window.devicePixelRatio || 1;
+                const updateSize = () => {
+                    canvas.width = canvas.offsetWidth * dpr;
+                    canvas.height = canvas.offsetHeight * dpr;
+                    ctx.scale(dpr, dpr);
+                };
+                updateSize();
+
+                const particles = [];
+                const treeHeight = canvas.offsetHeight * 0.72;
+                const treeBaseWidth = canvas.offsetWidth * 0.42;
+
+                for (let i = 0; i < 2200; i++) {
+                    const t = Math.random();
+                    const radius = (1 - t) * treeBaseWidth * 0.5;
+                    const angle = t * Math.PI * 24;
+                    particles.push({
+                        bx: Math.cos(angle) * radius,
+                        by: -t * treeHeight,
+                        bz: Math.sin(angle) * radius,
+                        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                        size: Math.random() * 2 + 0.6,
+                        ao: Math.random() * Math.PI * 2
+                    });
+                }
+
+                let time = 0;
+                const render = () => {
+                    time += 0.015;
+                    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                    const cx = canvas.offsetWidth / 2, cy = canvas.offsetHeight * 0.85;
+
+                    particles.forEach(p => {
+                        const rotX = p.bx * Math.cos(time * 0.4) - p.bz * Math.sin(time * 0.4);
+                        const rotZ = p.bx * Math.sin(time * 0.4) + p.bz * Math.cos(time * 0.4);
+                        const scale = (rotZ + treeBaseWidth) / (treeBaseWidth * 2) * 0.45 + 0.75;
+                        const px = cx + rotX * scale, py = cy + p.by * scale;
+                        const sparkle = Math.sin(time * 5 + p.ao) * 0.5 + 0.5;
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, p.size * scale, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = scale * 0.75 * (0.3 + sparkle * 0.7);
+                        ctx.fill();
+                    });
+
+                    // 顶部的五角星
+                    ctx.save();
+                    ctx.translate(cx, cy - treeHeight - 15);
+                    ctx.beginPath();
+                    for(let i=0; i<5; i++) {
+                        ctx.lineTo(Math.cos((18+i*72)/180*Math.PI)*13, -Math.sin((18+i*72)/180*Math.PI)*13);
+                        ctx.lineTo(Math.cos((54+i*72)/180*Math.PI)*6, -Math.sin((54+i*72)/180*Math.PI)*6);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = "#ffd700";
+                    ctx.shadowBlur = 25; ctx.shadowColor = "#ffd700";
+                    ctx.fill();
+                    ctx.restore();
+
+                    animationFrameId = requestAnimationFrame(render);
+                };
+                render();
+                window.addEventListener('resize', updateSize);
+                return () => {
+                    cancelAnimationFrame(animationFrameId);
+                    window.removeEventListener('resize', updateSize);
+                };
+            }, []);
+
+            return <canvas ref={canvasRef} className="w-full h-full" />;
+        };
+
+        // --- 主页面 ---
+        const App = () => {
+            const Heart = () => (
+                <div className="relative flex items-center justify-center animate-heart heart-glow">
+                    <span className="text-red-500 text-2xl md:text-3xl animate-ping absolute opacity-80">❤️</span>
+                    <span className="text-red-500 text-2xl md:text-3xl relative">❤️</span>
+                </div>
+            );
+
+            return (
+                <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-[#0c0211] overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] to-black opacity-85"></div>
+                    
+                    <div className="relative z-10 w-full max-w-4xl h-full flex flex-col items-center justify-between py-12">
+                        {/* 标题 */}
+                        <div className="text-center">
+                            <h1 className="text-pink-100 text-6xl md:text-8xl font-script drop-shadow-[0_0_25px_rgba(255,20,147,0.9)] animate-pulse">
+                                Merry Christmas
+                            </h1>
+                        </div>
+
+                        {/* 圣诞树 */}
+                        <div className="flex-1 w-full min-h-[50vh]">
+                            <ChristmasTree />
+                        </div>
+
+                        {/* 祝福语区域 */}
+                        <div className="text-center flex flex-col items-center gap-6">
+                            <div className="text-pink-300/60 text-[10px] md:text-xs font-sans tracking-[0.4em] uppercase">
+                                Happy Holidays &bull; 2025
+                            </div>
+                            
+                            {/* 对称布局：❤️ 雯雯宝贝 ❤️ (字体调小版) */}
+                            <div className="flex items-center gap-4 md:gap-6 px-8 py-3 rounded-full bg-white/5 backdrop-blur-lg border border-pink-500/30 shadow-[0_0_30px_rgba(255,105,180,0.2)]">
+                                <Heart />
+                                <span className="text-pink-100 text-2xl md:text-4xl font-love tracking-widest drop-shadow-[0_0_12px_rgba(255,20,147,0.8)]">
+                                    雯雯宝贝
+                                </span>
+                                <Heart />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 雪花背景 */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        {Array.from({ length: 60 }).map((_, i) => (
+                            <div key={i} className="absolute bg-white rounded-full opacity-30 animate-snow"
+                                style={{
+                                    left: Math.random() * 100 + '%',
+                                    top: -10 + '%',
+                                    width: (Math.random() * 3 + 1) + 'px',
+                                    height: (Math.random() * 3 + 1) + 'px',
+                                    animationDuration: (Math.random() * 8 + 6) + 's',
+                                    animationDelay: (Math.random() * 5) + 's'
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
