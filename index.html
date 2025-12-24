@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merry Christmas 2025</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    
+    <!-- React & Babel for Standalone Execution -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #0c0211; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-love { font-family: 'Dancing Script', cursive; }
+        
+        @keyframes snow-fall {
+            0% { transform: translateY(-10vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(110vh) translateX(40px); opacity: 0; }
+        }
+        .animate-snow { animation: snow-fall linear infinite; }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8)); }
+            50% { transform: scale(1.2); filter: drop-shadow(0 0 15px rgba(255, 20, 147, 1)); }
+        }
+        .animate-heart { animation: heartbeat 1s ease-in-out infinite; }
+
+        .text-glow {
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(255, 20, 147, 0.5);
+        }
+
+        .container-blur {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 192, 203, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-[#0c0211]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useEffect, useRef } = React;
+
+        const ChristmasTree = () => {
+            const canvasRef = useRef(null);
+            const COLORS = ['#ff007f', '#ff69b4', '#da70d6', '#ba55d3', '#ffd700', '#ffffff', '#ff1493'];
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+                
+                const dpr = window.devicePixelRatio || 1;
+                const updateSize = () => {
+                    canvas.width = canvas.offsetWidth * dpr;
+                    canvas.height = canvas.offsetHeight * dpr;
+                    ctx.scale(dpr, dpr);
+                };
+                updateSize();
+
+                const particles = [];
+                const treeHeight = canvas.offsetHeight * 0.75;
+                const treeBaseWidth = canvas.offsetWidth * 0.45;
+                const count = 2500; // Denser particles for a "fuller" look
+
+                for (let i = 0; i < count; i++) {
+                    const t = Math.random();
+                    const radius = (1 - t) * treeBaseWidth * 0.5;
+                    const angle = t * Math.PI * 22; // More spirals
+                    particles.push({
+                        bx: Math.cos(angle) * radius,
+                        by: -t * treeHeight,
+                        bz: Math.sin(angle) * radius,
+                        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                        size: Math.random() * 2 + 0.4,
+                        speed: 0.2 + Math.random() * 0.5,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+
+                let time = 0;
+                const render = () => {
+                    time += 0.01;
+                    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                    const cx = canvas.offsetWidth / 2, cy = canvas.offsetHeight * 0.85;
+
+                    // Sort particles by Z to handle depth
+                    const sorted = [...particles].sort((a, b) => {
+                        const rotZA = a.bx * Math.sin(time * 0.5) + a.bz * Math.cos(time * 0.5);
+                        const rotZB = b.bx * Math.sin(time * 0.5) + b.bz * Math.cos(time * 0.5);
+                        return rotZA - rotZB;
+                    });
+
+                    sorted.forEach(p => {
+                        const rotX = p.bx * Math.cos(time * 0.5) - p.bz * Math.sin(time * 0.5);
+                        const rotZ = p.bx * Math.sin(time * 0.5) + p.bz * Math.cos(time * 0.5);
+                        
+                        const perspective = 0.6 + (rotZ + treeBaseWidth) / (treeBaseWidth * 2) * 0.6;
+                        const px = cx + rotX * perspective;
+                        const py = cy + p.by * perspective;
+                        
+                        const sparkle = Math.sin(time * 6 + p.phase) * 0.5 + 0.5;
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, p.size * perspective, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = perspective * 0.9 * (0.1 + sparkle * 0.9);
+                        ctx.fill();
+                        
+                        // Small glow around brighter particles
+                        if (p.size > 1.5 && sparkle > 0.8) {
+                            ctx.shadowBlur = 10;
+                            ctx.shadowColor = p.color;
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    });
+
+                    // Topper Star
+                    ctx.save();
+                    ctx.translate(cx, cy - treeHeight - 15);
+                    ctx.beginPath();
+                    const outer = 14, inner = 6;
+                    for(let i=0; i<5; i++) {
+                        ctx.lineTo(Math.cos((18+i*72)/180*Math.PI)*outer, -Math.sin((18+i*72)/180*Math.PI)*outer);
+                        ctx.lineTo(Math.cos((54+i*72)/180*Math.PI)*inner, -Math.sin((54+i*72)/180*Math.PI)*inner);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = "#ffd700";
+                    ctx.shadowBlur = 30; ctx.shadowColor = "#ffd700";
+                    ctx.fill();
+                    ctx.restore();
+
+                    animationFrameId = requestAnimationFrame(render);
+                };
+                render();
+                window.addEventListener('resize', updateSize);
+                return () => {
+                    cancelAnimationFrame(animationFrameId);
+                    window.removeEventListener('resize', updateSize);
+                };
+            }, []);
+
+            return <canvas ref={canvasRef} className="w-full h-full" />;
+        };
+
+        const App = () => {
+            const Heart = () => (
+                <div className="flex items-center justify-center animate-heart">
+                    <span className="text-red-500 text-2xl md:text-3xl">❤️</span>
+                </div>
+            );
+
+            return (
+                <div className="relative w-screen h-screen flex flex-col items-center justify-between py-12 px-4 overflow-hidden">
+                    {/* Background Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0c0211] to-[#000000] z-[-1]"></div>
+                    
+                    {/* Title */}
+                    <div className="z-20 text-center mt-4">
+                        <h1 className="text-pink-100 text-6xl md:text-8xl font-script text-glow tracking-tight animate-pulse">
+                            Merry Christmas
+                        </h1>
+                    </div>
+
+                    {/* The Tree */}
+                    <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+                        <ChristmasTree />
+                    </div>
+
+                    {/* Bottom Decorative Section */}
+                    <div className="z-20 w-full max-w-sm flex flex-col items-center gap-6 mb-4">
+                        <div className="text-pink-300/40 text-[10px] md:text-xs font-sans tracking-[0.6em] uppercase">
+                            Magic Moments &bull; 2025
+                        </div>
+                        
+                        <div className="flex items-center gap-5 md:gap-7 px-8 py-3 rounded-full container-blur shadow-[0_0_40px_rgba(255,20,147,0.15)]">
+                            <Heart />
+                            <span className="text-pink-100 text-2xl md:text-3xl font-love tracking-widest drop-shadow-[0_0_15px_rgba(255,20,147,0.8)]">
+                                雯雯宝贝
+                            </span>
+                            <Heart />
+                        </div>
+                    </div>
+
+                    {/* Snowflakes Layer */}
+                    <div className="absolute inset-0 pointer-events-none z-10">
+                        {Array.from({ length: 60 }).map((_, i) => (
+                            <div key={i} className="absolute bg-white rounded-full opacity-30 animate-snow"
+                                style={{
+                                    left: Math.random() * 100 + '%',
+                                    top: -10 + '%',
+                                    width: (Math.random() * 3 + 1) + 'px',
+                                    height: (Math.random() * 3 + 1) + 'px',
+                                    animationDuration: (Math.random() * 8 + 6) + 's',
+                                    animationDelay: (Math.random() * 5) + 's',
+                                    filter: 'blur(1px)'
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
